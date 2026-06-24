@@ -24,6 +24,21 @@ const getSummary = async (req, res, next) => {
   }
 };
 
+
+const getSalesReports = async (req, res, next) => {
+  try {
+    const { period } = req.query;
+    let limitDate = "datetime('now', '-7 days')";
+    let formatStr = '%Y-%m-%d';
+    if (period === 'monthly') {
+      limitDate = "datetime('now', '-12 months')";
+      formatStr = '%Y-%m';
+    }
+    const [rows] = await pool.execute("SELECT strftime('" + formatStr + "', sale_date) as date, SUM(total_price) as total_sales, SUM(quantity) as items_sold FROM sales WHERE sale_date >= " + limitDate + " GROUP BY date ORDER BY date ASC");
+    res.json(rows);
+  } catch (err) { next(err); }
+};
 module.exports = {
   getSummary,
+  getSalesReports,
 };

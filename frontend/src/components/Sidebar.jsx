@@ -6,6 +6,8 @@ import AddBoxIcon from '@mui/icons-material/AddBox';
 import BarChartIcon from '@mui/icons-material/BarChart';
 import NotificationsActiveIcon from '@mui/icons-material/NotificationsActive';
 import InventoryIcon from '@mui/icons-material/Inventory';
+import PeopleIcon from '@mui/icons-material/People';
+import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 
 const drawerWidth = 240;
 
@@ -14,10 +16,21 @@ const menuItems = [
   { text: 'Add Product', icon: <AddBoxIcon />, to: '/add-product' },
   { text: 'Reports', icon: <BarChartIcon />, to: '/reports' },
   { text: 'Alerts', icon: <NotificationsActiveIcon />, to: '/alerts' },
+  { text: 'Suppliers', icon: <PeopleIcon />, to: '/suppliers', role: 'admin' },
+  { text: 'Supplier Orders', icon: <LocalShippingIcon />, to: '/supplier-orders', role: 'admin' },
 ];
 
 function Sidebar() {
   const location = useLocation();
+  let userRole = 'staff';
+  try {
+    const token = localStorage.getItem('token');
+    if (token) {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      if (payload.role) userRole = payload.role;
+    }
+  } catch(e) {}
+
 
   return (
     <Drawer
@@ -42,6 +55,7 @@ function Sidebar() {
 
       <List sx={{ mt: 2, px: 2 }}>
         {menuItems.map((item) => {
+          if (item.role && item.role !== userRole) return null;
           const active = location.pathname === item.to;
           return (
             <ListItem key={item.text} disablePadding sx={{ mb: 1 }}>

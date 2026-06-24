@@ -14,6 +14,7 @@ import {
 import { Bar, Line } from 'react-chartjs-2';
 import DownloadIcon from '@mui/icons-material/Download';
 import { getReportSummary, getProducts } from '../services/api';
+import api from '../services/api';
 import LoadingSpinner from '../components/LoadingSpinner';
 import {
   Chart as ChartJS,
@@ -49,6 +50,8 @@ function Reports() {
   // Chart datasets state
   const [categoryChartData, setCategoryChartData] = useState(null);
   const [trendChartData, setTrendChartData] = useState(null);
+  const [salesChartData, setSalesChartData] = useState(null);
+  const [salesPeriod, setSalesPeriod] = useState('daily');
 
   const loadReportData = async () => {
     try {
@@ -173,7 +176,8 @@ function Reports() {
 
     const csvContent =
       'data:text/csv;charset=utf-8,' +
-      [headers.join(','), ...rows.map((e) => e.join(','))].join('\n');
+      [headers.join(','), ...rows.map((e) => e.join(','))].join('
+');
 
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement('a');

@@ -4,8 +4,8 @@ class Product {
   static async create(data) {
     const sql = `
       INSERT INTO products
-      (product_name, sku, category, store_name, stock_level, picked_quantity, reorder_level, status, created_at, updated_at)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
+      (product_name, sku, category, store_name, stock_level, picked_quantity, reorder_level, status, expiry_date, created_at, updated_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
     `;
     const [result] = await pool.execute(sql, [
       data.product_name,
@@ -16,6 +16,7 @@ class Product {
       Number(data.picked_quantity) || 0,
       Number(data.reorder_level) || 0,
       data.status || 'active',
+      data.expiry_date || null,
     ]);
     return result.insertId;
   }
@@ -54,7 +55,7 @@ class Product {
     const params = [];
 
     for (const [key, value] of Object.entries(data)) {
-      if (['product_name', 'sku', 'category', 'store_name', 'stock_level', 'picked_quantity', 'reorder_level', 'status'].includes(key)) {
+      if (['product_name', 'sku', 'category', 'store_name', 'stock_level', 'picked_quantity', 'reorder_level', 'status', 'expiry_date'].includes(key)) {
         fields.push(`${key} = ?`);
         params.push(value);
       }

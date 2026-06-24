@@ -241,6 +241,7 @@ function InventoryDashboard() {
             </TableBody>
           </Table>
         </TableContainer>
+            )}
       )}
 
       {/* Delete Confirmation Dialog */}

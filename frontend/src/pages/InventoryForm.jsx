@@ -33,6 +33,7 @@ function InventoryForm() {
     picked_quantity: 0,
     reorder_level: 0,
     status: 'active',
+    expiry_date: '',
   });
 
   const [loading, setLoading] = useState(false);
@@ -54,6 +55,7 @@ function InventoryForm() {
             picked_quantity: data.picked_quantity || 0,
             reorder_level: data.reorder_level || 0,
             status: data.status || 'active',
+            expiry_date: data.expiry_date || '',
           });
         } catch (err) {
           setError('Failed to load product data.');
