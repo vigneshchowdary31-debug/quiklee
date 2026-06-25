@@ -2,17 +2,16 @@ const pool = require('../config/db');
 
 const getSummary = async (req, res, next) => {
   try {
-    const [rows] = await pool.execute(`
+    const result = await pool.query(`
       SELECT
-        COUNT(*) AS total_products,
-        SUM(CASE WHEN status='active' THEN 1 ELSE 0 END) AS active_products,
-        SUM(CASE WHEN stock_level = 0 THEN 1 ELSE 0 END) AS out_of_stock,
-        SUM(CASE WHEN stock_level > 0 AND stock_level <= reorder_level THEN 1 ELSE 0 END) AS low_stock
+        COUNT(*)::int AS total_products,
+        COALESCE(SUM(CASE WHEN status = 'active' THEN 1 ELSE 0 END), 0)::int AS active_products,
+        COALESCE(SUM(CASE WHEN stock_level = 0 THEN 1 ELSE 0 END), 0)::int AS out_of_stock,
+        COALESCE(SUM(CASE WHEN stock_level > 0 AND stock_level <= reorder_level THEN 1 ELSE 0 END), 0)::int AS low_stock
       FROM products
     `);
-    
-    // SQLite can return null values for SUM if no rows match, default them to 0
-    const summary = rows[0] || {};
+
+    const summary = result.rows[0] || {};
     res.json({
       total_products: Number(summary.total_products) || 0,
       active_products: Number(summary.active_products) || 0,
@@ -24,20 +23,38 @@ const getSummary = async (req, res, next) => {
   }
 };
 
-
 const getSalesReports = async (req, res, next) => {
   try {
     const { period } = req.query;
-    let limitDate = "datetime('now', '-7 days')";
-    let formatStr = '%Y-%m-%d';
+
+    let intervalText = "7 days";
+    let formatStr = 'YYYY-MM-DD';
+
     if (period === 'monthly') {
-      limitDate = "datetime('now', '-12 months')";
-      formatStr = '%Y-%m';
+      intervalText = "12 months";
+      formatStr = 'YYYY-MM';
     }
-    const [rows] = await pool.execute("SELECT strftime('" + formatStr + "', sale_date) as date, SUM(total_price) as total_sales, SUM(quantity) as items_sold FROM sales WHERE sale_date >= " + limitDate + " GROUP BY date ORDER BY date ASC");
-    res.json(rows);
-  } catch (err) { next(err); }
+
+    const result = await pool.query(
+      `
+      SELECT
+        TO_CHAR(sale_date, $1) AS date,
+        COALESCE(SUM(total_price), 0) AS total_sales,
+        COALESCE(SUM(quantity), 0) AS items_sold
+      FROM sales
+      WHERE sale_date >= NOW() - CAST($2 AS interval)
+      GROUP BY TO_CHAR(sale_date, $1)
+      ORDER BY date ASC
+      `,
+      [formatStr, intervalText]
+    );
+
+    res.json(result.rows);
+  } catch (err) {
+    next(err);
+  }
 };
+
 module.exports = {
   getSummary,
   getSalesReports,
