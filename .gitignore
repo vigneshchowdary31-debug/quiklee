@@ -1,7 +1,8 @@
-﻿node_modules/
+node_modules/
 .env
 .DS_Store
 
 .env*
 .vercel
-
+pglite_db/
+quiklee_pgdata/

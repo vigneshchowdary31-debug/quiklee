@@ -1,10 +1,29 @@
 require("dotenv").config();
-const { Pool } = require("pg");
+const path = require("path");
 
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: { rejectUnauthorized: false }
-});
+let pool;
+
+if (process.env.DATABASE_URL) {
+  const { Pool } = require("pg");
+  pool = new Pool({
+    connectionString: process.env.DATABASE_URL,
+    ssl: { rejectUnauthorized: false }
+  });
+} else {
+  console.log("No DATABASE_URL found. Using embedded PostgreSQL (PGlite) for local development...");
+  const { PGlite } = require("@electric-sql/pglite");
+  const pglite = new PGlite(path.join(__dirname, "../quiklee_pgdata"));
+  
+  pool = {
+    query: async (sql, params = []) => {
+      const res = await pglite.query(sql, params);
+      if (res && res.rowCount === undefined) {
+        res.rowCount = res.affectedRows !== undefined ? res.affectedRows : (res.rows ? res.rows.length : 0);
+      }
+      return res;
+    }
+  };
+}
 
 (async () => {
   try {
