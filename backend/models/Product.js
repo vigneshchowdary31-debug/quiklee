@@ -78,7 +78,11 @@ class Product {
           'expiry_date',
         ].includes(key)
       ) {
-        params.push(value);
+        let val = value;
+        if (key === 'expiry_date' && (value === '' || value === undefined)) {
+          val = null;
+        }
+        params.push(val);
         fields.push(`${key} = $${params.length}`);
       }
     }
