@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Quiklee – Database, Testing & Cloud Deployment Presentation</title>
+  <style>
+    /* ── Google Fonts ── */
+    @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Fira+Code:wght@400;500&display=swap');
+
+    /* ── Reset & Variables ── */
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    :root {
+      --bg-dark: #0a0a0f;
+      --card-bg: rgba(20, 20, 35, 0.7);
+      --border-color: rgba(255, 255, 255, 0.08);
+      --text-main: #f3f4f6;
+      --text-muted: #9ca3af;
+      --teal: #00f2fe;
+      --blue: #4facfe;
+      --accent-gradient: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%);
+      --accent-gradient-glow: linear-gradient(135deg, rgba(0, 242, 254, 0.3) 0%, rgba(79, 172, 254, 0.3) 100%);
+      --font-sans: 'Outfit', sans-serif;
+      --font-mono: 'Fira Code', monospace;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      font-family: var(--font-sans);
+      overflow: hidden;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      user-select: none;
+    }
+
+    /* ── Slides Container ── */
+    .slides-wrapper {
+      position: relative;
+      width: 100%;
+      height: calc(100vh - 80px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .slide {
+      position: absolute;
+      width: 85%;
+      max-width: 1200px;
+      height: 80%;
+      background: var(--card-bg);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--border-color);
+      border-radius: 24px;
+      padding: 48px 64px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      opacity: 0;
+      pointer-events: none;
+      transform: scale(0.95) translateY(20px);
+      transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    }
+
+    .slide.active {
+      opacity: 1;
+      pointer-events: auto;
+      transform: scale(1) translateY(0);
+    }
+
+    /* ── Typography & Elements ── */
+    h1.slide-title {
+      font-size: 2.8rem;
+      font-weight: 800;
+      background: var(--accent-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 24px;
+      border-bottom: 2px solid var(--border-color);
+      padding-bottom: 12px;
+      letter-spacing: -0.5px;
+    }
+
+    h2.slide-subtitle {
+      font-size: 1.6rem;
+      font-weight: 600;
+      color: var(--teal);
+      margin-bottom: 16px;
+    }
+
+    p {
+      font-size: 1.15rem;
+      line-height: 1.6;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+    }
+
+    ul {
+      margin-left: 24px;
+      margin-bottom: 20px;
+    }
+
+    li {
+      font-size: 1.15rem;
+      line-height: 1.6;
+      color: var(--text-main);
+      margin-bottom: 8px;
+    }
+
+    li strong {
+      color: var(--teal);
+    }
+
+    /* ── Code block styling ── */
+    pre {
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 16px 20px;
+      overflow-x: auto;
+      font-family: var(--font-mono);
+      font-size: 0.95rem;
+      color: #38bdf8;
+      margin-top: 12px;
+      margin-bottom: 20px;
+    }
+
+    code {
+      font-family: var(--font-mono);
+      color: var(--teal);
+      background: rgba(255, 255, 255, 0.05);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 0.9em;
+    }
+
+    /* ── Grid Layouts ── */
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 32px;
+      margin-top: 16px;
+    }
+
+    .grid-card {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 16px;
+      padding: 20px;
+    }
+
+    .grid-card h3 {
+      font-size: 1.25rem;
+      color: var(--text-main);
+      margin-bottom: 12px;
+      border-left: 4px solid var(--teal);
+      padding-left: 10px;
+    }
+
+    /* ── Title Slide Specifics ── */
+    .title-slide {
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+
+    .title-slide h1 {
+      font-size: 3.8rem;
+      font-weight: 800;
+      margin-bottom: 16px;
+      background: var(--accent-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: -1px;
+    }
+
+    .title-slide h3 {
+      font-size: 1.8rem;
+      font-weight: 400;
+      color: var(--text-muted);
+      margin-bottom: 48px;
+    }
+
+    .title-slide .badge {
+      background: var(--accent-gradient-glow);
+      border: 1px solid var(--teal);
+      color: var(--text-main);
+      padding: 6px 16px;
+      border-radius: 30px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 24px;
+      display: inline-block;
+    }
+
+    .team-members {
+      margin-top: 32px;
+      font-size: 1.1rem;
+      color: var(--text-muted);
+    }
+    
+    .team-members span {
+      color: var(--text-main);
+      font-weight: 600;
+      margin: 0 12px;
+    }
+
+    /* ── Mermaid Mock Visualizer (Clean SVG style diagrams in CSS) ── */
+    .diagram-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
+      margin: 20px 0;
+      padding: 16px;
+      background: rgba(0,0,0,0.2);
+      border-radius: 12px;
+      border: 1px solid var(--border-color);
+    }
+
+    .flow-step {
+      background: rgba(79, 172, 254, 0.15);
+      border: 1px solid var(--blue);
+      border-radius: 8px;
+      padding: 10px 16px;
+      text-align: center;
+      min-width: 160px;
+      font-weight: 600;
+    }
+
+    .flow-arrow {
+      color: var(--teal);
+      font-size: 1.5rem;
+      margin: 0 16px;
+    }
+
+    /* ── Controls Footer ── */
+    .controls-footer {
+      height: 80px;
+      background: rgba(10, 10, 15, 0.8);
+      border-top: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 64px;
+      z-index: 100;
+    }
+
+    .slide-progress {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .progress-bar {
+      width: 180px;
+      height: 6px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: var(--accent-gradient);
+      width: 0%;
+      transition: width 0.4s ease;
+    }
+
+    .slide-counter {
+      font-family: var(--font-mono);
+      font-size: 0.95rem;
+      color: var(--text-muted);
+    }
+
+    .nav-buttons {
+      display: flex;
+      gap: 16px;
+    }
+
+    .btn {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      padding: 10px 24px;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.3s ease;
+    }
+
+    .btn:hover:not(:disabled) {
+      background: var(--accent-gradient);
+      border-color: transparent;
+      color: #000;
+      box-shadow: 0 0 15px rgba(0, 242, 254, 0.4);
+    }
+
+    .btn:disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+    }
+
+    /* ── Print / Save PDF Style ── */
+    @media print {
+      body {
+        overflow: visible;
+        height: auto;
+        background: #fff;
+        color: #000;
+      }
+      .controls-footer, .no-print {
+        display: none !important;
+      }
+      .slides-wrapper {
+        height: auto;
+        display: block;
+      }
+      .slide {
+        position: relative;
+        display: flex !important;
+        opacity: 1 !important;
+        pointer-events: auto !important;
+        transform: none !important;
+        width: 100%;
+        max-width: 100%;
+        height: 100vh;
+        margin: 0;
+        page-break-after: always;
+        border: none;
+        box-shadow: none;
+        background: #fff;
+        color: #000;
+        padding: 20mm 20mm;
+      }
+      h1.slide-title {
+        color: #000;
+        background: none;
+        -webkit-text-fill-color: initial;
+        border-bottom: 2px solid #000;
+      }
+      h2.slide-subtitle {
+        color: #0066cc;
+      }
+      p, li {
+        color: #333;
+      }
+      pre {
+        background: #f4f4f5;
+        color: #000;
+        border: 1px solid #ccc;
+      }
+      .grid-card {
+        background: #f9f9fb;
+        border: 1px solid #ddd;
+      }
+      .flow-step {
+        background: #e6f7ff;
+        border: 1px solid #1890ff;
+        color: #000;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top bar (No Print) -->
+  <div class="no-print" style="position: absolute; top: 20px; right: 40px; z-index: 1000; display: flex; gap: 12px;">
+    <button onclick="window.print()" class="btn" style="background: rgba(233, 69, 96, 0.2); border-color: #e94560;">
+      🖨️ Save as PDF / Print Slides
+    </button>
+  </div>
+
+  <!-- Slides Wrapper -->
+  <div class="slides-wrapper">
+
+    <!-- SLIDE 1: Title -->
+    <div class="slide active title-slide">
+      <div class="badge">College Project Presentation</div>
+      <h1>Quiklee</h1>
+      <h3>Database, Testing & Cloud Deployment</h3>
+      <p style="font-size: 1.3rem;">Dark Store Inventory & Real-Time Stock Availability System</p>
+      
+      <div class="team-members">
+        Team Members:
+        <span>Student 1 (Frontend)</span>|
+        <span>Student 2 (Backend)</span>|
+        <span>Student 3 (Testing & Deployment)</span>
+      </div>
+    </div>
+
+    <!-- SLIDE 2: Database Architecture -->
+    <div class="slide">
+      <h1 class="slide-title">🗄️ Database Architecture</h1>
+      <h2 class="slide-subtitle">Relational Design & Single Source of Truth</h2>
+      <p>The Quiklee database serves as the foundation for the inventory status updates, historical stock logs, and low-stock alerts.</p>
+      
+      <div class="grid-2">
+        <div class="grid-card">
+          <h3>Relational Storage Engine</h3>
+          <ul>
+            <li><strong>Development:</strong> Local SQLite adapter interface.</li>
+            <li><strong>Production Scale:</strong> Fully scalable **PostgreSQL** hosted securely on Railway.</li>
+            <li><strong>Protection:</strong> Prepared parameterized query layers to block SQL injection vulnerabilities.</li>
+          </ul>
+        </div>
+        <div class="grid-card">
+          <h3>Pooling & Adapters</h3>
+          <ul>
+            <li><strong>Connection Pool:</strong> Configured client queues to handle concurrent read/write transactions smoothly.</li>
+            <li><strong>MySQL Adaptability:</strong> Custom adapter translation layer to convert MySQL queries (`?`) into PostgreSQL bindings (`$1`) dynamically.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 3: Database Schema -->
+    <div class="slide">
+      <h1 class="slide-title">📂 Database Schema Models</h1>
+      <h2 class="slide-subtitle">Entities, Relational Mapping & Normalization</h2>
+      <p>The data structures are fully normalized to prevent redundancy and keep transactional updates clean.</p>
+      
+      <div class="grid-2">
+        <div class="grid-card">
+          <h3>Core Data Tables</h3>
+          <ul>
+            <li><strong>products:</strong> Name, SKU (Unique), Category, Store, Stock Levels, and Reorder thresholds.</li>
+            <li><strong>alerts:</strong> Log entries linking low-stock trigger details to specific product IDs.</li>
+            <li><strong>inventory_history:</strong> Tracks old vs new stock quantities on any update.</li>
+          </ul>
+        </div>
+        <div class="grid-card">
+          <h3>Relations & Operations</h3>
+          <ul>
+            <li><strong>suppliers:</strong> Registry of third-party grocery distributors.</li>
+            <li><strong>supplier_orders:</strong> Logs purchase orders placed for products.</li>
+            <li><strong>sales:</strong> Holds past transaction counts and totals for reporting dashboard analytics.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 4: Initialization & Seeding -->
+    <div class="slide">
+      <h1 class="slide-title">🔍 DB Initialization & Seeding</h1>
+      <h2 class="slide-subtitle">Self-Healing Migration Script Setup</h2>
+      <p>A bootstrap hook dynamically validates schema constraints and populates initial values on environment launch.</p>
+      
+      <pre><code>// Database Tables Boot Migration Scaffolding
+CREATE TABLE IF NOT EXISTS products (
+  id SERIAL PRIMARY KEY,
+  product_name VARCHAR(255) NOT NULL,
+  sku VARCHAR(100) NOT NULL UNIQUE,
+  stock_level INTEGER DEFAULT 0,
+  reorder_level INTEGER DEFAULT 0,
+  expiry_date DATE
+);</code></pre>
+
+      <p><strong>Seeding Strategy:</strong> Inserts mock data consisting of 15 high-volume SKU items, linked suppliers, and mock sales entries over the past 5 days to populate the reports page charts.</p>
+    </div>
+
+    <!-- SLIDE 5: Testing Strategy -->
+    <div class="slide">
+      <h1 class="slide-title">🧪 Comprehensive Testing Strategy</h1>
+      <h2 class="slide-subtitle">Stateless API Verification & UI Mock Testing</h2>
+      <p>Our testing strategy spans from code compilation and request structure validation down to interactive edge-case assertions.</p>
+
+      <div class="grid-2">
+        <div class="grid-card">
+          <h3>Integrated Tools</h3>
+          <ul>
+            <li><strong>Jest:</strong> Code assertion runner.</li>
+            <li><strong>Supertest:</strong> Performs REST request tests on database pools in memory.</li>
+            <li><strong>React Testing Library:</strong> Simulates UI layout rendering states.</li>
+          </ul>
+        </div>
+        <div class="grid-card">
+          <h3>Scope of Coverage</h3>
+          <ul>
+            <li><strong>Stateless Routes:</strong> Secure token access verification.</li>
+            <li><strong>Input Sanitization:</strong> Rejecting tags or scripts.</li>
+            <li><strong>Boundary Valuations:</strong> Checking zero values and empty states.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 6: 15 Core Test Scenarios -->
+    <div class="slide">
+      <h1 class="slide-title">📊 Scenario Validations</h1>
+      <h2 class="slide-subtitle">15 Real-World Dark Store Test Cases (100% Pass Rate)</h2>
+      <p>The code is verified against a list of 15 specific operational execution paths:</p>
+      
+      <div class="grid-2" style="font-size: 0.95rem;">
+        <div class="grid-card">
+          <h3>Operations & API (1-8)</h3>
+          <ul style="margin-bottom: 0;">
+            <li>1. Product registration validation.</li>
+            <li>2. Reading details by ID.</li>
+            <li>3. Complete product attribute updates.</li>
+            <li>4. Clean inventory item deletion.</li>
+            <li>5. Adjusting stock quantities via PATCH delta.</li>
+            <li>6. Supplier creation profile mapping.</li>
+            <li>7. Automated reorder warnings check.</li>
+            <li>8. Low stock alert table insertions.</li>
+          </ul>
+        </div>
+        <div class="grid-card">
+          <h3>Securities & UI (9-15)</h3>
+          <ul style="margin-bottom: 0;">
+            <li>9. Healthy SKU calculation formula bounds.</li>
+            <li>10. Expiry logging alert notifications.</li>
+            <li>11. Reordering orders from pending to received.</li>
+            <li>12. Authenticated paths login requirement checks.</li>
+            <li>13. Input validation errors on bad SKU forms.</li>
+            <li>14. Chart.js statistics aggregation logic.</li>
+            <li>15. Missing product ID 404 response codes.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 7: Deployment Architecture -->
+    <div class="slide">
+      <h1 class="slide-title">🚀 Deployment Architecture</h1>
+      <h2 class="slide-subtitle">Decoupled Hosting & Environment Pipelines</h2>
+      <p>Separation of static assets and dynamic processing services allows high availability and cost savings.</p>
+
+      <div class="diagram-container">
+        <div class="flow-step">Vercel SPA Client<br/>(React / Static Assets)</div>
+        <div class="flow-arrow">➔</div>
+        <div class="flow-step">Railway API Server<br/>(Node.js / Express Container)</div>
+        <div class="flow-arrow">➔</div>
+        <div class="flow-step">Railway PostgreSQL<br/>(Relational Database)</div>
+      </div>
+
+      <ul>
+        <li><strong>Continuous Integration:</strong> Deployment steps trigger automatically on commits pushes.</li>
+        <li><strong>Encryption:</strong> Server-to-database communication is secured over SSL channels.</li>
+      </ul>
+    </div>
+
+    <!-- SLIDE 8: Frontend Vercel Deploy -->
+    <div class="slide">
+      <h1 class="slide-title">🌐 Frontend Hosting on Vercel</h1>
+      <h2 class="slide-subtitle">Vite Optimizations & Client Router Configuration</h2>
+      <p>The single-page React app (SPA) is built and optimized into a static bundle, served globally via Vercel's Edge Network.</p>
+
+      <pre><code>// vercel.json Rewrite Rules
+{
+  "version": 2,
+  "framework": "vite",
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
+}</code></pre>
+      
+      <p><strong>Routing Rewrite:</strong> Maps all dynamic routing queries directly back to `index.html` to support internal React Router DOM navigation path lookups.</p>
+    </div>
+
+    <!-- SLIDE 9: Backend Railway Deploy -->
+    <div class="slide">
+      <h1 class="slide-title">⚙️ Backend Hosting on Railway</h1>
+      <h2 class="slide-subtitle">Dockerized Containers & Secrets Injection</h2>
+      <p>The backend app runs on specialized Nixpacks runners, which detect the environment and run a Node.js process wrapper.</p>
+      
+      <div class="grid-2">
+        <div class="grid-card">
+          <h3>nixpacks & railway.json</h3>
+          <p>Instructs Railway to build dependencies cleanly and launch using the start command:</p>
+          <pre style="margin: 0; padding: 10px;"><code>"deploy": {
+  "startCommand": "node server.js"
+}</code></pre>
+        </div>
+        <div class="grid-card">
+          <h3>Environment Injection</h3>
+          <ul>
+            <li>`DATABASE_URL`: Cloud PostgreSQL address.</li>
+            <li>`JWT_SECRET`: Security cryptographic hash.</li>
+            <li>`FRONTEND_URL`: CORS configurations origin url.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 10: Production Challenges -->
+    <div class="slide">
+      <h1 class="slide-title">🚧 Challenges & Resolutions</h1>
+      <h2 class="slide-subtitle">Deployment Hurdles & Solutions</h2>
+      
+      <div class="grid-2">
+        <div class="grid-card">
+          <h3>CORS Blockers</h3>
+          <p><strong>Challenge:</strong> Vercel frontend requests to Railway backend were blocked due to different domains.</p>
+          <p><strong>Solution:</strong> Configured dynamic CORS headers inside `server.js` referencing environment configuration variables.</p>
+        </div>
+        <div class="grid-card">
+          <h3>Railway Ephemeral Storage</h3>
+          <p><strong>Challenge:</strong> SQLite database file was deleted on container restarts/rebuilds on Railway.</p>
+          <p><strong>Solution:</strong> Migrated from SQLite config to dedicated managed PostgreSQL instances on Railway, securing connection tokens.</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Footer Navigation -->
+  <div class="controls-footer">
+    <div class="slide-progress">
+      <div class="progress-bar">
+        <div class="progress-fill" id="progress-fill"></div>
+      </div>
+      <div class="slide-counter"><span id="current-slide-num">1</span> / <span id="total-slides-num">10</span></div>
+    </div>
+
+    <div class="nav-buttons">
+      <button class="btn" id="prev-btn" onclick="prevSlide()" disabled>◀ Prev</button>
+      <button class="btn" id="next-btn" onclick="nextSlide()">Next ▶</button>
+    </div>
+  </div>
+
+  <!-- Slide Navigation Logic -->
+  <script>
+    const slides = document.querySelectorAll('.slide');
+    const totalSlides = slides.length;
+    let currentSlide = 0;
+
+    document.getElementById('total-slides-num').innerText = totalSlides;
+
+    function updateSlides() {
+      slides.forEach((slide, index) => {
+        if (index === currentSlide) {
+          slide.classList.add('active');
+        } else {
+          slide.classList.remove('active');
+        }
+      });
+
+      // Update counters & buttons
+      document.getElementById('current-slide-num').innerText = currentSlide + 1;
+      document.getElementById('prev-btn').disabled = currentSlide === 0;
+      document.getElementById('next-btn').disabled = currentSlide === totalSlides - 1;
+
+      // Update Progress Bar
+      const progressPercent = ((currentSlide + 1) / totalSlides) * 100;
+      document.getElementById('progress-fill').style.width = progressPercent + '%';
+    }
+
+    function nextSlide() {
+      if (currentSlide < totalSlides - 1) {
+        currentSlide++;
+        updateSlides();
+      }
+    }
+
+    function prevSlide() {
+      if (currentSlide > 0) {
+        currentSlide--;
+        updateSlides();
+      }
+    }
+
+    // Keyboard Navigation
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'Enter') {
+        nextSlide();
+      } else if (e.key === 'ArrowLeft' || e.key === 'Backspace') {
+        prevSlide();
+      }
+    });
+
+    // Initialize progress bar width on load
+    updateSlides();
+  </script>
+</body>
+</html>
