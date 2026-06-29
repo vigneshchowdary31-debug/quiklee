@@ -25,10 +25,10 @@ const productValidation = [
 
 // Helper to update alert state depending on stock levels and status
 const updateProductAlertState = async (productId, name, sku, stockLevel, reorderLevel, status) => {
-  if (status === 'inactive') {
-    await Alert.updateAlertState(productId, 'Inactive', `Product '${name}' (SKU: ${sku}) is currently Inactive.`);
-  } else if (status === 'archived') {
-    await Alert.updateAlertState(productId, 'Archived', `Product '${name}' (SKU: ${sku}) has been Archived.`);
+  if (status === 'inactive' || status === 'archived') {
+    // Clear both stock alerts and expiry alerts for inactive/archived products
+    await Alert.updateAlertState(productId, null, '');
+    await Alert.updateExpiryAlertState(productId, null, '');
   } else {
     // Status is active
     if (stockLevel === 0) {
@@ -36,14 +36,15 @@ const updateProductAlertState = async (productId, name, sku, stockLevel, reorder
     } else if (stockLevel <= reorderLevel) {
       await Alert.updateAlertState(productId, 'Low Stock', `Product '${name}' (SKU: ${sku}) is at Low Stock. Current: ${stockLevel}, Reorder Level: ${reorderLevel}`);
     } else {
-      await Alert.updateAlertState(productId, 'Achieved', `Product '${name}' (SKU: ${sku}) has Achieved healthy stock level. Current: ${stockLevel}`);
+      // Clear alert if stock is healthy
+      await Alert.updateAlertState(productId, null, '');
     }
   }
 };
 
-const updateProductExpiryAlertState = async (productId, name, sku, expiryDate) => {
-  if (!expiryDate) {
-    // Clear any expiry alert if date is removed
+const updateProductExpiryAlertState = async (productId, name, sku, expiryDate, status) => {
+  if (status === 'inactive' || status === 'archived' || !expiryDate) {
+    // Clear any expiry alert if inactive/archived or no expiry date is set
     await Alert.updateExpiryAlertState(productId, null, '');
     return;
   }
@@ -67,7 +68,7 @@ const createProduct = async (req, res, next) => {
     
     // Update alert status instantly
     await updateProductAlertState(id, req.body.product_name, req.body.sku, Number(req.body.stock_level), Number(req.body.reorder_level), req.body.status);
-    await updateProductExpiryAlertState(id, req.body.product_name, req.body.sku, req.body.expiry_date);
+    await updateProductExpiryAlertState(id, req.body.product_name, req.body.sku, req.body.expiry_date, req.body.status);
 
     res.status(201).json({ id, message: 'Product created successfully' });
   } catch (err) {
@@ -115,7 +116,7 @@ const updateProduct = async (req, res, next) => {
 
     // Always recalculate alerts for this product upon editing to reflect changes immediately
     await updateProductAlertState(id, req.body.product_name, req.body.sku, newStock, Number(req.body.reorder_level), req.body.status);
-    await updateProductExpiryAlertState(id, req.body.product_name, req.body.sku, req.body.expiry_date);
+    await updateProductExpiryAlertState(id, req.body.product_name, req.body.sku, req.body.expiry_date, req.body.status);
 
     res.json({ message: 'Product updated successfully' });
   } catch (err) {

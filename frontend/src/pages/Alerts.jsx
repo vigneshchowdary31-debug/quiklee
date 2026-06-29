@@ -118,9 +118,6 @@ function Alerts() {
     all: alerts,
     out_of_stock: alerts.filter(a => a.alert_type === 'Out of Stock'),
     low_stock: alerts.filter(a => a.alert_type === 'Low Stock'),
-    achieved: alerts.filter(a => a.alert_type === 'Achieved'),
-    inactive: alerts.filter(a => a.alert_type === 'Inactive'),
-    archived: alerts.filter(a => a.alert_type === 'Archived'),
     expiry: alerts.filter(a => a.alert_type === 'Expired' || a.alert_type === 'Expiring Soon'),
   };
 
@@ -160,23 +157,14 @@ function Alerts() {
         </Button>
       </Box>
 
-      <Grid container spacing={2} mb={4}>
-        <Grid item xs={6} sm={4} md={2}>
+      <Grid container spacing={3} mb={4}>
+        <Grid item xs={12} sm={4} md={4}>
           <SummaryCard icon={<ErrorIcon />} label="Out of Stock" count={outOfStockCount} color="#d32f2f" bg="rgba(211,47,47,0.08)" />
         </Grid>
-        <Grid item xs={6} sm={4} md={2}>
+        <Grid item xs={12} sm={4} md={4}>
           <SummaryCard icon={<WarningIcon />} label="Low Stock" count={lowStockCount} color="#ffb300" bg="rgba(255,179,0,0.08)" />
         </Grid>
-        <Grid item xs={6} sm={4} md={2}>
-          <SummaryCard icon={<CheckCircleIcon />} label="Healthy Stock" count={healthyCount} color="#2e7d32" bg="rgba(46,125,50,0.08)" />
-        </Grid>
-        <Grid item xs={6} sm={4} md={2}>
-          <SummaryCard icon={<PowerOffIcon />} label="Inactive" count={inactiveCount} color="#0288d1" bg="rgba(2,136,209,0.08)" />
-        </Grid>
-        <Grid item xs={6} sm={4} md={2}>
-          <SummaryCard icon={<ArchiveIcon />} label="Archived" count={archivedCount} color="#7b1fa2" bg="rgba(123,31,162,0.08)" />
-        </Grid>
-        <Grid item xs={6} sm={4} md={2}>
+        <Grid item xs={12} sm={4} md={4}>
           <SummaryCard icon={<CancelIcon />} label="Expiry Issues" count={expiryIssueCount} color="#e65100" bg="rgba(230,81,0,0.08)" />
         </Grid>
       </Grid>
@@ -195,9 +183,6 @@ function Alerts() {
           <Tab value="all" label={`All (${alertMap.all.length})`} sx={{ textTransform: 'none', fontWeight: 'bold' }} />
           <Tab value="out_of_stock" label={`Out of Stock (${alertMap.out_of_stock.length})`} sx={{ textTransform: 'none', fontWeight: 'bold' }} />
           <Tab value="low_stock" label={`Low Stock (${alertMap.low_stock.length})`} sx={{ textTransform: 'none', fontWeight: 'bold' }} />
-          <Tab value="achieved" label={`Healthy (${alertMap.achieved.length})`} sx={{ textTransform: 'none', fontWeight: 'bold' }} />
-          <Tab value="inactive" label={`Inactive (${alertMap.inactive.length})`} sx={{ textTransform: 'none', fontWeight: 'bold' }} />
-          <Tab value="archived" label={`Archived (${alertMap.archived.length})`} sx={{ textTransform: 'none', fontWeight: 'bold' }} />
           <Tab value="expiry" label={`Expiry (${alertMap.expiry.length})`} sx={{ textTransform: 'none', fontWeight: 'bold' }} />
         </Tabs>
 

@@ -24,14 +24,9 @@ const scanAndGenerateAlerts = async (req, res, next) => {
       let alertType = '';
       let msg = '';
 
-      if (status === 'inactive') {
-        // Inactive product: show Inactive alert, NOT stock alert
-        alertType = 'Inactive';
-        msg = `Product '${product.product_name}' (SKU: ${product.sku}) is currently Inactive.`;
-      } else if (status === 'archived') {
-        // Archived product: show Archived alert, NOT stock alert
-        alertType = 'Archived';
-        msg = `Product '${product.product_name}' (SKU: ${product.sku}) has been Archived.`;
+      if (status === 'inactive' || status === 'archived') {
+        alertType = null;
+        msg = '';
       } else {
         // Active product: evaluate stock level
         if (stock === 0) {
@@ -41,17 +36,17 @@ const scanAndGenerateAlerts = async (req, res, next) => {
           alertType = 'Low Stock';
           msg = `Product '${product.product_name}' (SKU: ${product.sku}) is at Low Stock. Current: ${stock}, Reorder Level: ${reorder}`;
         } else {
-          alertType = 'Achieved';
-          msg = `Product '${product.product_name}' (SKU: ${product.sku}) has Achieved healthy stock level. Current: ${stock}`;
+          alertType = null;
+          msg = '';
         }
       }
 
-      // Atomically clear old stock/status alerts and insert the correct one
+      // Atomically clear old stock/status alerts and insert the correct one if active/critical
       await Alert.updateAlertState(product.id, alertType, msg);
       generated++;
 
-      // Check expiry date alerts (only for non-archived products)
-      if (status !== 'archived' && product.expiry_date) {
+      // Check expiry date alerts (only for active products)
+      if (status === 'active' && product.expiry_date) {
         const expiry = new Date(product.expiry_date);
         const now = new Date();
         const diffDays = Math.ceil((expiry - now) / (1000 * 60 * 60 * 24));
@@ -69,7 +64,7 @@ const scanAndGenerateAlerts = async (req, res, next) => {
 
         await Alert.updateExpiryAlertState(product.id, expiryType, expiryMsg);
       } else {
-        // No expiry date or archived: clear any old expiry alert
+        // Inactive/archived or no expiry date: clear any old expiry alert
         await Alert.updateExpiryAlertState(product.id, null, '');
       }
     }
