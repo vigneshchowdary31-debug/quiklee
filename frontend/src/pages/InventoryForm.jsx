@@ -254,6 +254,20 @@ function InventoryForm() {
             </TextField>
           </Grid>
 
+          <Grid item xs={12} sm={6}>
+            <TextField
+              name="expiry_date"
+              label="Expiry Date"
+              type="date"
+              fullWidth
+              value={form.expiry_date}
+              onChange={handleChange}
+              InputLabelProps={{ shrink: true }}
+              error={!!validationErrors.expiry_date}
+              helperText={validationErrors.expiry_date}
+            />
+          </Grid>
+
           <Grid item xs={12} display="flex" justifyContent="flex-end" gap={2} mt={2}>
             <Button variant="outlined" color="inherit" onClick={() => navigate('/dashboard')}>
               Cancel
