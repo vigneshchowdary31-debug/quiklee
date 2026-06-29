@@ -6,3 +6,4 @@ node_modules/
 .vercel
 pglite_db/
 quiklee_pgdata/
+dist/
