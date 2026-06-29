@@ -29,4 +29,14 @@ const createSupplierOrder = async (req, res, next) => {
   } catch (err) { next(err); }
 };
 
-module.exports = { getSuppliers, createSupplier, getSupplierOrders, createSupplierOrder };
+const deleteSupplier = async (req, res, next) => {
+  try {
+    const count = await Supplier.delete(req.params.id);
+    if (count === 0) {
+      return res.status(404).json({ message: 'Supplier not found' });
+    }
+    res.json({ message: 'Supplier deleted successfully' });
+  } catch (err) { next(err); }
+};
+
+module.exports = { getSuppliers, createSupplier, getSupplierOrders, createSupplierOrder, deleteSupplier };

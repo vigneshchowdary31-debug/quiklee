@@ -22,6 +22,18 @@ export default function Suppliers() {
     loadSuppliers();
   };
 
+  const handleDelete = async (id) => {
+    if (window.confirm('Are you sure you want to delete this supplier? This will also delete any related supplier orders.')) {
+      try {
+        await api.delete(`/suppliers/${id}`);
+        loadSuppliers();
+      } catch (err) {
+        console.error('Failed to delete supplier:', err);
+        alert('Failed to delete supplier.');
+      }
+    }
+  };
+
   return (
     <Box>
       <Box display="flex" justifyContent="space-between" mb={2}>
@@ -30,11 +42,23 @@ export default function Suppliers() {
       </Box>
       <TableContainer component={Paper}>
         <Table>
-          <TableHead><TableRow><TableCell>Name</TableCell><TableCell>Contact Info</TableCell><TableCell>Email</TableCell></TableRow></TableHead>
+          <TableHead>
+            <TableRow>
+              <TableCell>Name</TableCell>
+              <TableCell>Contact Info</TableCell>
+              <TableCell>Email</TableCell>
+              <TableCell align="right">Actions</TableCell>
+            </TableRow>
+          </TableHead>
           <TableBody>
             {suppliers.map(s => (
               <TableRow key={s.id}>
-                <TableCell>{s.name}</TableCell><TableCell>{s.contact_info}</TableCell><TableCell>{s.email}</TableCell>
+                <TableCell>{s.name}</TableCell>
+                <TableCell>{s.contact_info}</TableCell>
+                <TableCell>{s.email}</TableCell>
+                <TableCell align="right">
+                  <Button variant="outlined" color="error" size="small" onClick={() => handleDelete(s.id)}>Delete</Button>
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>

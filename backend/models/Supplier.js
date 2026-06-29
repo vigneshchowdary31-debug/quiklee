@@ -11,6 +11,11 @@ class Supplier {
     const result = await pool.query('SELECT * FROM suppliers ORDER BY created_at DESC');
     return result.rows;
   }
+
+  static async delete(id) {
+    const result = await pool.query('DELETE FROM suppliers WHERE id = $1', [id]);
+    return result.rowCount;
+  }
 }
 
 module.exports = Supplier;
